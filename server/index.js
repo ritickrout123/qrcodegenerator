@@ -22,10 +22,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 console.log(`Starting QR Generator server in ${NODE_ENV} mode`);
 
 // Middleware
-app.use(cors({
-  origin: CORS_ORIGIN,
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 // In-memory storage for QR links (in production, use a database)

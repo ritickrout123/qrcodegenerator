@@ -1,0 +1,106 @@
+[
+  {
+    "testName": "Server Health",
+    "status": "PASS",
+    "message": "Server responding, 0 links stored",
+    "details": null,
+    "timestamp": "2025-09-02T08:35:45.874Z"
+  },
+  {
+    "testName": "Multi-platform Link",
+    "status": "PASS",
+    "message": "QR code generated successfully",
+    "details": {
+      "qrData": "http://localhost:3001/r/3a8bbe5b",
+      "shortId": "3a8bbe5b"
+    },
+    "timestamp": "2025-09-02T08:35:45.891Z"
+  },
+  {
+    "testName": "App Store Link",
+    "status": "PASS",
+    "message": "QR code generated successfully",
+    "details": {
+      "qrData": "https://apps.apple.com/app/example-app"
+    },
+    "timestamp": "2025-09-02T08:35:45.896Z"
+  },
+  {
+    "testName": "QrdyLink",
+    "status": "PASS",
+    "message": "QR code generated successfully",
+    "details": {
+      "qrData": "http://localhost:3001/q/695aa4",
+      "shortId": "695aa4"
+    },
+    "timestamp": "2025-09-02T08:35:45.904Z"
+  },
+  {
+    "testName": "WiFi QR Generation",
+    "status": "PASS",
+    "message": "QR code generated successfully",
+    "details": {
+      "qrData": "WIFI:T:WPA;S:TestNetwork;P:testpassword123;H:false;;"
+    },
+    "timestamp": "2025-09-02T08:35:45.914Z"
+  },
+  {
+    "testName": "WiFi QR Format",
+    "status": "PASS",
+    "message": "WiFi QR format correct",
+    "details": {
+      "qrData": "WIFI:T:WPA;S:TestNetwork;P:testpassword123;H:false;;",
+      "expectedPattern": "/^WIFI:T:WPA;S:TestNetwork;P:testpassword123;H:false;;$/"
+    },
+    "timestamp": "2025-09-02T08:35:45.919Z"
+  },
+  {
+    "testName": "Phone QR Generation",
+    "status": "PASS",
+    "message": "QR code generated successfully",
+    "details": {
+      "qrData": "tel:+1234567890"
+    },
+    "timestamp": "2025-09-02T08:35:45.931Z"
+  },
+  {
+    "testName": "Phone QR Format",
+    "status": "PASS",
+    "message": "Phone QR format correct",
+    "details": {
+      "qrData": "tel:+1234567890",
+      "expected": "tel:+1234567890"
+    },
+    "timestamp": "2025-09-02T08:35:45.932Z"
+  },
+  {
+    "testName": "Redirect test for 3a8bbe5b",
+    "status": "PASS",
+    "message": "Redirected to: https://apps.apple.com/app/test-app",
+    "details": {
+      "expectedPattern": "apps.apple.com",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac O..."
+    },
+    "timestamp": "2025-09-02T08:35:45.939Z"
+  },
+  {
+    "testName": "Redirect test for 3a8bbe5b",
+    "status": "PASS",
+    "message": "Redirected to: https://play.google.com/store/apps/details?id=com.test.app",
+    "details": {
+      "expectedPattern": "play.google.com",
+      "userAgent": "Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWeb..."
+    },
+    "timestamp": "2025-09-02T08:35:45.948Z"
+  },
+  {
+    "testName": "Redirect test for 3a8bbe5b",
+    "status": "PASS",
+    "message": "Redirected to: https://example.com",
+    "details": {
+      "expectedPattern": "example.com",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb..."
+    },
+    "timestamp": "2025-09-02T08:35:45.966Z"
+  }
+]

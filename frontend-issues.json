@@ -1,0 +1,72 @@
+[
+  {
+    "category": "QR Download",
+    "severity": "MEDIUM",
+    "description": "QR download relies on canvas.toDataURL() which may not work on all browsers",
+    "fix": "Add fallback download method or better error handling",
+    "timestamp": "2025-09-02T08:38:28.728Z"
+  },
+  {
+    "category": "Mobile",
+    "severity": "MEDIUM",
+    "description": "Mobile responsiveness needs manual testing on actual devices",
+    "fix": "Test on iOS Safari, Android Chrome, and various screen sizes",
+    "timestamp": "2025-09-02T08:38:28.729Z"
+  },
+  {
+    "category": "Browser Compatibility",
+    "severity": "MEDIUM",
+    "description": "Copy functionality may not work in older browsers or non-HTTPS contexts",
+    "fix": "Add fallback copy method using document.execCommand() or show manual copy instructions",
+    "timestamp": "2025-09-02T08:38:28.730Z"
+  },
+  {
+    "category": "Browser Compatibility",
+    "severity": "MEDIUM",
+    "description": "QR download may fail in some browsers or with CORS restrictions",
+    "fix": "Add error handling and alternative download methods",
+    "timestamp": "2025-09-02T08:38:28.731Z"
+  },
+  {
+    "category": "Browser Compatibility",
+    "severity": "MEDIUM",
+    "description": "Layout may break in very old browsers",
+    "fix": "Add CSS fallbacks or polyfills if supporting IE11",
+    "timestamp": "2025-09-02T08:38:28.732Z"
+  },
+  {
+    "category": "Security",
+    "severity": "MEDIUM",
+    "description": "No rate limiting on QR generation",
+    "fix": "Add rate limiting to prevent abuse",
+    "timestamp": "2025-09-02T08:38:28.772Z"
+  },
+  {
+    "category": "Security",
+    "severity": "MEDIUM",
+    "description": "Generated links stored in memory without expiration",
+    "fix": "Add TTL for generated links and cleanup mechanism",
+    "timestamp": "2025-09-02T08:38:28.772Z"
+  },
+  {
+    "category": "Production",
+    "severity": "HIGH",
+    "description": "No database persistence",
+    "fix": "Replace in-memory storage with database (Redis/PostgreSQL)",
+    "timestamp": "2025-09-02T08:38:28.781Z"
+  },
+  {
+    "category": "Production",
+    "severity": "HIGH",
+    "description": "No logging or monitoring",
+    "fix": "Add structured logging and error tracking",
+    "timestamp": "2025-09-02T08:38:28.781Z"
+  },
+  {
+    "category": "Production",
+    "severity": "HIGH",
+    "description": "No HTTPS enforcement",
+    "fix": "Add HTTPS redirect and security headers",
+    "timestamp": "2025-09-02T08:38:28.782Z"
+  }
+]

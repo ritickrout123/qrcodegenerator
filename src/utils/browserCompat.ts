@@ -151,7 +151,36 @@ function downloadWithNewWindow(canvas: HTMLCanvasElement): DownloadResult {
 export async function downloadQRCode(filename: string): Promise<DownloadResult> {
   try {
     // Find the SVG element (react-qr-code generates SVG)
-    const svg = document.querySelector('svg') as SVGSVGElement;
+    let svg: SVGSVGElement | null = null;
+
+    // First, try to find SVG in the QR code container
+    const qrContainer = document.querySelector('.qr-code-container');
+    if (qrContainer) {
+      svg = qrContainer.querySelector('svg') as SVGSVGElement;
+    }
+
+    // If not found in container, look for SVG with QR code characteristics
+    if (!svg) {
+      const allSvgs = document.querySelectorAll('svg');
+
+      if (allSvgs.length === 1) {
+        svg = allSvgs[0] as SVGSVGElement;
+      } else if (allSvgs.length > 1) {
+        // Find the SVG that looks like a QR code (has many rect elements)
+        for (const svgElement of allSvgs) {
+          const rects = svgElement.querySelectorAll('rect');
+          if (rects.length > 10) { // QR codes typically have many rect elements
+            svg = svgElement as SVGSVGElement;
+            break;
+          }
+        }
+        // If no QR-like SVG found, use the first one
+        if (!svg) {
+          svg = allSvgs[0] as SVGSVGElement;
+        }
+      }
+    }
+
     if (!svg) {
       return { success: false, error: 'QR code SVG not found' };
     }

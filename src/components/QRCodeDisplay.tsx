@@ -112,7 +112,7 @@ export default function QRCodeDisplay({ qrData, settings, onSettingsChange, shor
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
           
           {/* QR Code container */}
-          <div className="relative bg-white p-6 rounded-2xl shadow-2xl transform transition-transform duration-300 hover:scale-105">
+          <div className="qr-code-container relative bg-white p-6 rounded-2xl shadow-2xl transform transition-transform duration-300 hover:scale-105">
             <QRCode
               value={qrData}
               size={settings.size}

@@ -29,7 +29,7 @@ export interface ValidationResult {
   warning?: string;
 }
 
-export function validateURL(url: string): ValidationResult {
+export function validateURL(url: string, context?: string): ValidationResult {
   if (!url || url.trim() === '') {
     return { isValid: false, error: 'URL is required' };
   }
@@ -65,6 +65,33 @@ export function validateURL(url: string): ValidationResult {
         isValid: true, 
         warning: 'Consider using HTTPS for better security' 
       };
+    }
+
+    // Specific validation for App Store URLs
+    if (context === 'ios' && domain.includes('apps.apple.com')) {
+      const hasAppId = url.match(/id\d+/);
+      if (!hasAppId) {
+        return {
+          isValid: false,
+          error: 'iOS App Store URL must include app ID (e.g., /id123456789)'
+        };
+      }
+      
+      return {
+        isValid: true,
+        warning: 'Make sure this App Store URL is correct - it will open directly in the App Store app'
+      };
+    }
+
+    // Specific validation for Play Store URLs
+    if (context === 'android' && domain.includes('play.google.com')) {
+      const hasPackageName = url.includes('id=') || url.includes('details?id=');
+      if (!hasPackageName) {
+        return {
+          isValid: false,
+          error: 'Android Play Store URL must include package ID (e.g., ?id=com.example.app)'
+        };
+      }
     }
 
     return { isValid: true };
@@ -157,18 +184,24 @@ export function validateFormData(formData: any): ValidationResult {
         return webValidation;
       }
 
-      // Validate optional iOS and Android URLs
+      // Validate optional iOS and Android URLs with context
       if (formData.urls.ios) {
-        const iosValidation = validateURL(formData.urls.ios);
+        const iosValidation = validateURL(formData.urls.ios, 'ios');
         if (!iosValidation.isValid) {
           return { isValid: false, error: `iOS URL: ${iosValidation.error}` };
+        }
+        if (iosValidation.warning) {
+          return { isValid: true, warning: `iOS URL: ${iosValidation.warning}` };
         }
       }
 
       if (formData.urls.android) {
-        const androidValidation = validateURL(formData.urls.android);
+        const androidValidation = validateURL(formData.urls.android, 'android');
         if (!androidValidation.isValid) {
           return { isValid: false, error: `Android URL: ${androidValidation.error}` };
+        }
+        if (androidValidation.warning) {
+          return { isValid: true, warning: `Android URL: ${androidValidation.warning}` };
         }
       }
 

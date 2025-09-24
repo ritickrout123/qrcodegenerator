@@ -75,6 +75,37 @@ app.post('/api/generate-qr', (req, res) => {
   }
 });
 
+// Helper function to convert regular App Store URLs to iOS-friendly format
+function convertToiOSAppStoreURL(appStoreUrl) {
+  try {
+    // Extract app ID from various URL patterns:
+    // https://apps.apple.com/app/appname/id123456789
+    // https://apps.apple.com/us/app/appname/id123456789
+    // https://apps.apple.com/app/id123456789
+    // https://itunes.apple.com/app/id123456789
+    const idMatch = appStoreUrl.match(/(?:id|\/)([0-9]+)(?:\?|$|#|\/)/i);
+    
+    if (idMatch && idMatch[1]) {
+      const appId = idMatch[1];
+      
+      // Use itms-apps:// scheme which is more reliable for opening specific apps
+      // This bypasses browser issues and opens directly in the App Store app
+      return `itms-apps://apps.apple.com/app/id${appId}`;
+    }
+    
+    // If we can't extract an ID but it's still an App Store URL,
+    // try to convert the domain to itms-apps
+    if (appStoreUrl.includes('apps.apple.com') || appStoreUrl.includes('itunes.apple.com')) {
+      return appStoreUrl.replace(/https?:\/\/(apps|itunes)\.apple\.com/, 'itms-apps://apps.apple.com');
+    }
+  } catch (error) {
+    console.log('Error converting iOS URL:', error);
+  }
+  
+  // Return original URL if conversion fails
+  return appStoreUrl;
+}
+
 // Redirect endpoint for multi-platform links
 app.get('/r/:shortId', (req, res) => {
   const { shortId } = req.params;
@@ -91,14 +122,50 @@ app.get('/r/:shortId', (req, res) => {
   
   let redirectUrl = linkData.webUrl; // Default fallback
   
-  // Device detection logic
+  // Device detection logic with iOS-specific handling
   if (os.name === 'iOS' || device.vendor === 'Apple') {
     redirectUrl = linkData.iosUrl || linkData.webUrl;
+    
+    // Fix iOS App Store URLs to work properly
+    if (redirectUrl && redirectUrl.includes('apps.apple.com')) {
+      // Convert regular App Store URL to itms-apps:// format for better app opening
+      redirectUrl = convertToiOSAppStoreURL(redirectUrl);
+    }
   } else if (os.name === 'Android') {
     redirectUrl = linkData.androidUrl || linkData.webUrl;
   }
   
   console.log(`Redirecting ${os.name || 'Unknown'} device to: ${redirectUrl}`);
+  
+  // For iOS itms-apps:// URLs, use HTML meta redirect to avoid parameter pollution
+  if (redirectUrl.startsWith('itms-apps://')) {
+    const htmlBody = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0;url=${redirectUrl}">
+          <title>Redirecting to App Store...</title>
+          <script>
+            // Fallback JavaScript redirect
+            setTimeout(function() {
+              window.location.href = '${redirectUrl}';
+            }, 100);
+          </script>
+        </head>
+        <body>
+          <p>Redirecting to App Store...</p>
+          <p>If you are not redirected automatically, <a href="${redirectUrl}">click here</a>.</p>
+        </body>
+      </html>
+    `;
+    
+    res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Cache-Control', 'no-cache');
+    return res.status(200).send(htmlBody);
+  }
+  
+  // For all other URLs, use standard redirect
   res.redirect(302, redirectUrl);
 });
 

@@ -147,36 +147,119 @@ function downloadWithNewWindow(canvas: HTMLCanvasElement): DownloadResult {
   }
 }
 
-// Cross-browser download function with fallbacks
-export function downloadQRCode(filename: string): DownloadResult {
-  // Find the canvas element
-  const canvas = document.querySelector('canvas') as HTMLCanvasElement;
-  if (!canvas) {
-    return { success: false, error: 'QR code canvas not found' };
+// Simple SVG to PNG conversion using canvas
+export async function downloadQRCode(filename: string): Promise<DownloadResult> {
+  try {
+    // Find the SVG element (react-qr-code generates SVG)
+    const svg = document.querySelector('svg') as SVGSVGElement;
+    if (!svg) {
+      return { success: false, error: 'QR code SVG not found' };
+    }
+
+    // Get SVG dimensions
+    const svgRect = svg.getBoundingClientRect();
+    const size = Math.max(svgRect.width, svgRect.height, 512);
+
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return { success: false, error: 'Canvas not supported' };
+    }
+
+    canvas.width = size;
+    canvas.height = size;
+
+    // Fill with white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+
+    // Get SVG data
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    // Create image and draw to canvas
+    const img = new Image();
+    
+    return new Promise<DownloadResult>((resolve) => {
+      img.onload = () => {
+        // Calculate centered position
+        const x = (size - img.width) / 2;
+        const y = (size - img.height) / 2;
+        
+        ctx.drawImage(img, x, y);
+        
+        // Convert to blob and download
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            resolve({ success: false, error: 'Failed to create image' });
+            return;
+          }
+          
+          const downloadUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = filename;
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          URL.revokeObjectURL(downloadUrl);
+          URL.revokeObjectURL(url);
+          
+          resolve({ success: true });
+        }, 'image/png');
+      };
+      
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        // Try fallback download
+        const fallbackResult = downloadSVGDirect(svg, filename);
+        resolve(fallbackResult);
+      };
+      
+      img.src = url;
+    });
+  } catch (error) {
+    // Final fallback - direct SVG download
+    const svg = document.querySelector('svg') as SVGSVGElement;
+    if (svg) {
+      return downloadSVGDirect(svg, filename);
+    }
+    
+    return {
+      success: false,
+      error: 'Download failed. Please right-click the QR code and select "Save image as..."'
+    };
   }
-  
-  // Check if canvas download is supported
-  if (!isCanvasDownloadSupported()) {
-    return { success: false, error: 'Canvas download not supported in this browser' };
+}
+
+// Direct SVG download fallback
+function downloadSVGDirect(svg: SVGSVGElement, filename: string): DownloadResult {
+  try {
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename.replace('.png', '.svg');
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
+    
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Download failed. Please right-click the QR code and select "Save image as..."'
+    };
   }
-  
-  // Try direct download first
-  const directResult = downloadWithCanvas(canvas, filename);
-  if (directResult.success) {
-    return directResult;
-  }
-  
-  // Fallback to new window method
-  const windowResult = downloadWithNewWindow(canvas);
-  if (windowResult.success) {
-    return windowResult;
-  }
-  
-  // If all methods fail
-  return {
-    success: false,
-    error: 'Download failed. Try right-clicking the QR code and selecting "Save image as..."'
-  };
 }
 
 // Error handling utility for network requests

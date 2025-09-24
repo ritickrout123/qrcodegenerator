@@ -1,8 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 
-// In-memory storage for demo (use a database in production)
-const qrLinks = new Map();
-
 export const handler = async (event, context) => {
   // Handle CORS
   const headers = {
@@ -34,17 +31,16 @@ export const handler = async (event, context) => {
     const baseUrl = process.env.URL || 'https://your-netlify-site.netlify.app';
 
     if (type === 'link' && data.urls) {
-      // For multi-platform links, create a short link
+      // For multi-platform links, encode data in URL parameters
       const shortId = uuidv4().slice(0, 8);
-      const shortUrl = `${baseUrl}/.netlify/functions/redirect?id=${shortId}`;
+      const linkData = {
+        ios: encodeURIComponent(data.urls.ios || data.urls.web),
+        android: encodeURIComponent(data.urls.android || data.urls.web),
+        web: encodeURIComponent(data.urls.web),
+        type: 'multi'
+      };
       
-      qrLinks.set(shortId, {
-        iosUrl: data.urls.ios || data.urls.web,
-        androidUrl: data.urls.android || data.urls.web,
-        webUrl: data.urls.web,
-        type: 'multi-platform',
-        createdAt: new Date()
-      });
+      const shortUrl = `${baseUrl}/.netlify/functions/redirect?id=${shortId}&ios=${linkData.ios}&android=${linkData.android}&web=${linkData.web}&type=${linkData.type}`;
       
       return {
         statusCode: 200,
@@ -73,13 +69,8 @@ export const handler = async (event, context) => {
       };
     } else if (type === 'qrdylink') {
       const shortId = uuidv4().slice(0, 6);
-      const shortUrl = `${baseUrl}/.netlify/functions/redirect?id=${shortId}`;
-      
-      qrLinks.set(shortId, {
-        targetUrl: data.url,
-        type: 'simple-redirect',
-        createdAt: new Date()
-      });
+      const targetUrl = encodeURIComponent(data.url);
+      const shortUrl = `${baseUrl}/.netlify/functions/redirect?id=${shortId}&target=${targetUrl}&type=simple`;
       
       return {
         statusCode: 200,

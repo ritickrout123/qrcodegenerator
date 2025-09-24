@@ -1,6 +1,6 @@
 import React from 'react';
 import QRCode from 'react-qr-code';
-import { Download, Copy, Check, AlertTriangle } from 'lucide-react';
+import { Download, Copy, Check, AlertTriangle, Settings, Palette, QrCode as QrCodeIcon, Sparkles, Share } from 'lucide-react';
 import { QRCodeSettings } from '../types/qr';
 import { copyToClipboard, downloadQRCode, CopyResult, DownloadResult } from '../utils/browserCompat';
 
@@ -15,16 +15,24 @@ export default function QRCodeDisplay({ qrData, settings, onSettingsChange, shor
   const [copied, setCopied] = React.useState(false);
   const [copyError, setCopyError] = React.useState<string | null>(null);
   const [downloadError, setDownloadError] = React.useState<string | null>(null);
+  const [showSettings, setShowSettings] = React.useState(false);
+  const [isGenerating, setIsGenerating] = React.useState(false);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     setDownloadError(null);
 
     const filename = `qr-code-${shortId || Date.now()}.png`;
-    const result = downloadQRCode(filename);
-
-    if (!result.success) {
-      setDownloadError(result.error || 'Download failed');
-      // Clear error after 5 seconds
+    
+    try {
+      const result = await downloadQRCode(filename);
+      
+      if (!result.success) {
+        setDownloadError(result.error || 'Download failed');
+        // Clear error after 5 seconds
+        setTimeout(() => setDownloadError(null), 5000);
+      }
+    } catch (error) {
+      setDownloadError('Download failed. Please try again.');
       setTimeout(() => setDownloadError(null), 5000);
     }
   };
@@ -46,42 +54,105 @@ export default function QRCodeDisplay({ qrData, settings, onSettingsChange, shor
 
   if (!qrData) {
     return (
-      <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-xl p-8 text-center">
-        <div className="w-64 h-64 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-4">
-          <span className="text-gray-500">QR Code will appear here</span>
+      <div className="card p-8 text-center animate-scale-in">
+        <div className="flex items-center gap-3 justify-center mb-6">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center">
+            <span className="text-white text-xs font-bold">3</span>
+          </div>
+          <h3 className="text-xl font-semibold text-white">Generated QR Code</h3>
+          <Sparkles size={16} className="text-green-400 animate-bounce-subtle" />
         </div>
-        <p className="text-gray-400">Fill in the form to generate your QR code</p>
+        
+        <div className="relative group">
+          <div className="w-72 h-72 bg-slate-700/60 border-2 border-dashed border-slate-500 rounded-2xl flex flex-col items-center justify-center mx-auto mb-6 transition-all duration-300 group-hover:border-slate-400">
+            <div className="p-4 bg-slate-600/60 rounded-full mb-4 group-hover:bg-slate-500/60 transition-colors duration-300">
+              <QrCodeIcon size={40} className="text-slate-300 group-hover:text-slate-200 transition-colors duration-300" />
+            </div>
+            <span className="text-slate-200 text-lg font-medium group-hover:text-white transition-colors duration-300">QR Code Preview</span>
+            <span className="text-slate-400 text-sm mt-2">Configure your settings and generate</span>
+          </div>
+        </div>
+        
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-slate-300 max-w-md leading-relaxed">
+            Complete the form on the left to generate your custom QR code with device detection and analytics.
+          </p>
+          
+          <div className="flex items-center gap-2 text-sm text-slate-400">
+            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></div>
+            <span>Waiting for configuration</span>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-      <div className="text-center mb-6">
-        <div className="bg-white p-4 rounded-xl inline-block mb-4">
-          <QRCode
-            value={qrData}
-            size={settings.size}
-            bgColor={settings.bgColor}
-            fgColor={settings.fgColor}
-            level={settings.errorCorrectionLevel}
-          />
+    <div className="card p-8 animate-scale-in">
+      <div className="flex items-center gap-3 justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center">
+            <span className="text-white text-xs font-bold">3</span>
+          </div>
+          <h3 className="text-xl font-semibold text-white">Generated QR Code</h3>
+          <Sparkles size={16} className="text-green-400 animate-bounce-subtle" />
         </div>
         
-        <div className="flex gap-2 justify-center">
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className={`p-2 rounded-lg transition-all duration-200 ${showSettings ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300 hover:text-white hover:bg-slate-600'}`}
+        >
+          <Settings size={16} />
+        </button>
+      </div>
+      
+      <div className="text-center mb-8">
+        <div className="relative inline-block group">
+          {/* Glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+          
+          {/* QR Code container */}
+          <div className="relative bg-white p-6 rounded-2xl shadow-2xl transform transition-transform duration-300 hover:scale-105">
+            <QRCode
+              value={qrData}
+              size={settings.size}
+              bgColor={settings.bgColor}
+              fgColor={settings.fgColor}
+              level={settings.errorCorrectionLevel}
+            />
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-3 justify-center mt-6">
           <button
             onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+            className="btn-primary group"
           >
-            <Download size={16} />
-            Download
+            <Download size={16} className="transform group-hover:scale-110 transition-transform duration-200" />
+            Download PNG
           </button>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            className={`btn-secondary group ${copied ? 'bg-green-600 hover:bg-green-700 border-green-500' : ''}`}
           >
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? 'Copied!' : 'Copy URL'}
+            {copied ? (
+              <>
+                <Check size={16} className="text-green-400" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy size={16} className="transform group-hover:scale-110 transition-transform duration-200" />
+                Copy URL
+              </>
+            )}
+          </button>
+          <button
+            className="btn-ghost group"
+            onClick={() => navigator.share && navigator.share({ url: qrData, title: 'QR Code' }).catch(() => {})}
+          >
+            <Share size={16} className="transform group-hover:scale-110 transition-transform duration-200" />
+            Share
           </button>
         </div>
 
@@ -105,76 +176,99 @@ export default function QRCodeDisplay({ qrData, settings, onSettingsChange, shor
         )}
       </div>
 
-      <div className="space-y-4">
-        <h4 className="text-sm font-semibold text-gray-300 mb-3">Customization</h4>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">Size</label>
-            <input
-              type="range"
-              min="128"
-              max="512"
-              value={settings.size}
-              onChange={(e) => onSettingsChange({ ...settings, size: parseInt(e.target.value) })}
-              className="w-full accent-indigo-500"
-            />
-            <span className="text-xs text-gray-500">{settings.size}px</span>
+      {/* Customization Panel */}
+      {showSettings && (
+        <div className="mt-8 p-6 bg-slate-800/60 rounded-2xl border border-slate-600/50 animate-slide-in">
+          <div className="flex items-center gap-2 mb-6">
+            <Palette size={16} className="text-indigo-400" />
+            <h4 className="text-lg font-semibold text-white">Customization</h4>
           </div>
           
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">Error Correction</label>
-            <select
-              value={settings.errorCorrectionLevel}
-              onChange={(e) => onSettingsChange({ ...settings, errorCorrectionLevel: e.target.value as any })}
-              className="w-full px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-xs"
-            >
-              <option value="L">Low (7%)</option>
-              <option value="M">Medium (15%)</option>
-              <option value="Q">Quartile (25%)</option>
-              <option value="H">High (30%)</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">Foreground Color</label>
-            <div className="flex gap-2">
-              <input
-                type="color"
-                value={settings.fgColor}
-                onChange={(e) => onSettingsChange({ ...settings, fgColor: e.target.value })}
-                className="w-8 h-8 border border-gray-600 rounded cursor-pointer"
-              />
-              <input
-                type="text"
-                value={settings.fgColor}
-                onChange={(e) => onSettingsChange({ ...settings, fgColor: e.target.value })}
-                className="flex-1 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-xs"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-3">
+                  <QrCodeIcon size={16} className="text-indigo-400" />
+                  Size: {settings.size}px
+                </label>
+                <input
+                  type="range"
+                  min="128"
+                  max="512"
+                  step="16"
+                  value={settings.size}
+                  onChange={(e) => onSettingsChange({ ...settings, size: parseInt(e.target.value) })}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>128px</span>
+                  <span>512px</span>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-300 mb-3 block">Error Correction Level</label>
+                <select
+                  value={settings.errorCorrectionLevel}
+                  onChange={(e) => onSettingsChange({ ...settings, errorCorrectionLevel: e.target.value as any })}
+                  className="input-field text-sm"
+                >
+                  <option value="L">Low (7%) - More data capacity</option>
+                  <option value="M">Medium (15%) - Balanced</option>
+                  <option value="Q">Quartile (25%) - Good recovery</option>
+                  <option value="H">High (30%) - Best recovery</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-300 mb-3 block">QR Code Color</label>
+                <div className="flex gap-3">
+                  <div className="relative">
+                    <input
+                      type="color"
+                      value={settings.fgColor}
+                      onChange={(e) => onSettingsChange({ ...settings, fgColor: e.target.value })}
+                      className="w-12 h-12 border-2 border-gray-600 rounded-xl cursor-pointer overflow-hidden"
+                    />
+                    <div className="absolute inset-0 rounded-xl border-2 border-gray-600 pointer-events-none"></div>
+                  </div>
+                  <input
+                    type="text"
+                    value={settings.fgColor}
+                    onChange={(e) => onSettingsChange({ ...settings, fgColor: e.target.value })}
+                    className="input-field text-sm font-mono"
+                    placeholder="#000000"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-300 mb-3 block">Background Color</label>
+                <div className="flex gap-3">
+                  <div className="relative">
+                    <input
+                      type="color"
+                      value={settings.bgColor}
+                      onChange={(e) => onSettingsChange({ ...settings, bgColor: e.target.value })}
+                      className="w-12 h-12 border-2 border-gray-600 rounded-xl cursor-pointer overflow-hidden"
+                    />
+                    <div className="absolute inset-0 rounded-xl border-2 border-gray-600 pointer-events-none"></div>
+                  </div>
+                  <input
+                    type="text"
+                    value={settings.bgColor}
+                    onChange={(e) => onSettingsChange({ ...settings, bgColor: e.target.value })}
+                    className="input-field text-sm font-mono"
+                    placeholder="#ffffff"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          
-          <div>
-            <label className="text-xs text-gray-400 mb-1 block">Background Color</label>
-            <div className="flex gap-2">
-              <input
-                type="color"
-                value={settings.bgColor}
-                onChange={(e) => onSettingsChange({ ...settings, bgColor: e.target.value })}
-                className="w-8 h-8 border border-gray-600 rounded cursor-pointer"
-              />
-              <input
-                type="text"
-                value={settings.bgColor}
-                onChange={(e) => onSettingsChange({ ...settings, bgColor: e.target.value })}
-                className="flex-1 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white text-xs"
-              />
-            </div>
-          </div>
         </div>
-      </div>
+      )}
 
       {shortId && (
         <div className="mt-4 p-3 bg-gray-800/30 rounded-lg">

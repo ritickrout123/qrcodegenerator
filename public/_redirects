@@ -1,0 +1,4 @@
+/r/:shortId /.netlify/functions/redirect?id=:shortId 200
+/q/:shortId /.netlify/functions/redirect?id=:shortId 200
+/api/* /.netlify/functions/:splat 200
+/* /index.html 200

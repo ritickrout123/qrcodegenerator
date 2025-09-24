@@ -4,17 +4,17 @@
     "status": "PASS",
     "message": "Server responding, 0 links stored",
     "details": null,
-    "timestamp": "2025-09-02T08:35:45.874Z"
+    "timestamp": "2025-09-24T07:05:31.226Z"
   },
   {
     "testName": "Multi-platform Link",
     "status": "PASS",
     "message": "QR code generated successfully",
     "details": {
-      "qrData": "http://localhost:3001/r/3a8bbe5b",
-      "shortId": "3a8bbe5b"
+      "qrData": "http://localhost:3001/r/4652ef67",
+      "shortId": "4652ef67"
     },
-    "timestamp": "2025-09-02T08:35:45.891Z"
+    "timestamp": "2025-09-24T07:05:31.265Z"
   },
   {
     "testName": "App Store Link",
@@ -23,17 +23,17 @@
     "details": {
       "qrData": "https://apps.apple.com/app/example-app"
     },
-    "timestamp": "2025-09-02T08:35:45.896Z"
+    "timestamp": "2025-09-24T07:05:31.273Z"
   },
   {
     "testName": "QrdyLink",
     "status": "PASS",
     "message": "QR code generated successfully",
     "details": {
-      "qrData": "http://localhost:3001/q/695aa4",
-      "shortId": "695aa4"
+      "qrData": "http://localhost:3001/q/1b7dcb",
+      "shortId": "1b7dcb"
     },
-    "timestamp": "2025-09-02T08:35:45.904Z"
+    "timestamp": "2025-09-24T07:05:31.280Z"
   },
   {
     "testName": "WiFi QR Generation",
@@ -42,7 +42,7 @@
     "details": {
       "qrData": "WIFI:T:WPA;S:TestNetwork;P:testpassword123;H:false;;"
     },
-    "timestamp": "2025-09-02T08:35:45.914Z"
+    "timestamp": "2025-09-24T07:05:31.292Z"
   },
   {
     "testName": "WiFi QR Format",
@@ -52,7 +52,7 @@
       "qrData": "WIFI:T:WPA;S:TestNetwork;P:testpassword123;H:false;;",
       "expectedPattern": "/^WIFI:T:WPA;S:TestNetwork;P:testpassword123;H:false;;$/"
     },
-    "timestamp": "2025-09-02T08:35:45.919Z"
+    "timestamp": "2025-09-24T07:05:31.292Z"
   },
   {
     "testName": "Phone QR Generation",
@@ -61,7 +61,7 @@
     "details": {
       "qrData": "tel:+1234567890"
     },
-    "timestamp": "2025-09-02T08:35:45.931Z"
+    "timestamp": "2025-09-24T07:05:31.299Z"
   },
   {
     "testName": "Phone QR Format",
@@ -71,36 +71,49 @@
       "qrData": "tel:+1234567890",
       "expected": "tel:+1234567890"
     },
-    "timestamp": "2025-09-02T08:35:45.932Z"
+    "timestamp": "2025-09-24T07:05:31.299Z"
   },
   {
-    "testName": "Redirect test for 3a8bbe5b",
+    "testName": "iOS URL Format test for 4652ef67",
     "status": "PASS",
-    "message": "Redirected to: https://apps.apple.com/app/test-app",
+    "message": "iOS App Store URL correctly uses itms-apps:// scheme",
+    "details": {
+      "deviceType": "ios",
+      "convertedUrl": "itms-apps://apps.apple.com/app/id123456789"
+    },
+    "timestamp": "2025-09-24T07:05:31.309Z"
+  },
+  {
+    "testName": "IOS redirect test for 4652ef67",
+    "status": "PASS",
+    "message": "Redirected to: itms-apps://apps.apple.com/app/id123456789",
     "details": {
       "expectedPattern": "apps.apple.com",
+      "deviceType": "ios",
       "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac O..."
     },
-    "timestamp": "2025-09-02T08:35:45.939Z"
+    "timestamp": "2025-09-24T07:05:31.310Z"
   },
   {
-    "testName": "Redirect test for 3a8bbe5b",
+    "testName": "ANDROID redirect test for 4652ef67",
     "status": "PASS",
     "message": "Redirected to: https://play.google.com/store/apps/details?id=com.test.app",
     "details": {
       "expectedPattern": "play.google.com",
+      "deviceType": "android",
       "userAgent": "Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWeb..."
     },
-    "timestamp": "2025-09-02T08:35:45.948Z"
+    "timestamp": "2025-09-24T07:05:31.316Z"
   },
   {
-    "testName": "Redirect test for 3a8bbe5b",
+    "testName": "DESKTOP redirect test for 4652ef67",
     "status": "PASS",
     "message": "Redirected to: https://example.com",
     "details": {
       "expectedPattern": "example.com",
+      "deviceType": "desktop",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb..."
     },
-    "timestamp": "2025-09-02T08:35:45.966Z"
+    "timestamp": "2025-09-24T07:05:31.339Z"
   }
 ]
